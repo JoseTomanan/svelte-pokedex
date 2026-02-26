@@ -1,7 +1,7 @@
 <script lang="ts">
 	import './layout.css';
 	import favicon from '$lib/assets/pokeball.svg';
-	import NavBar from '$lib/components/NavBar.svelte';
+	import NavBar from './NavBar.svelte';
 
 	let { children } = $props();
 </script>
@@ -17,3 +17,6 @@
 		{@render children()}
 	</div>
 </div>
+<footer class="flex justify-center py-4">
+	<p class="text-xs text-muted-foreground/60">Made with love, by Jose.</p>
+</footer>
