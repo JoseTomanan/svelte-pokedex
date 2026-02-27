@@ -12,7 +12,7 @@
 
 
 /* ======================== FONTS ======================== */
-@import "$lib/styles/fonts.css";
+@import "@/styles/fonts.css";
 
 
 /* ======================== RESPONSIVENESS ======================== */
@@ -58,7 +58,7 @@
 
 
 /* ======================== THEME ======================== */
-@import "$lib/styles/theme.css";
+@import "@/styles/theme.css";
 
 
 /* ======================== BASE ======================== */
@@ -89,6 +89,10 @@
 
   h5 {
     opacity: 80%;
+  }
+
+  h6 {
+    @apply text-sm;
   }
 
   p {
@@ -123,6 +127,7 @@
 @layer components {
   .card {
     background-color: var(--color-card);
+    border-width: 2px;
     border-radius: var(--radius);
     color: var(--color-card-foreground);
     @apply px-3 py-1.5;
