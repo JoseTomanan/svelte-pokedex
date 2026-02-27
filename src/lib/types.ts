@@ -1,8 +1,23 @@
+/* ================ API structures ================ */
 export interface Resource {
   name: string;
   url: string;
 }
 
+export interface StatData {
+  base_stat: number;
+  effort: number;
+  stat: Resource[];
+}
+
+export interface AbilityData {
+  is_hidden: boolean;
+  slot: number;
+  ability: Resource[];
+}
+
+
+/* ================ UI-specific ================ */
 export interface SpeciesShort {
   id: number;
   name: string;
@@ -14,6 +29,6 @@ export interface SpeciesShort {
 export interface SpeciesDetails extends SpeciesShort {
   height: number;
   weight: number;
-  stats: {base_stat: number, effort: number, stat: Resource[]}[]
-  // TODO: complete
+  stats: StatData[];
+  abilities: AbilityData[];
 }
