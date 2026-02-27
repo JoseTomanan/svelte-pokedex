@@ -52,7 +52,8 @@
 
         const id: number = subResult.id;
         const types: string[] = subResult.types.map((t: any) => t.type.name.toUpperCase());
-        const details: SpeciesDetails = subResult as SpeciesDetails;
+        
+        const details: SpeciesDetails = {...subResult, types} as SpeciesDetails;
 
         speciesList.push({
           ...item, id, types, details
@@ -98,5 +99,4 @@
       </div>
     {/if}
   </div>
-  <!-- TODO: add skeleton for when loading -->
 </div>
