@@ -35,7 +35,7 @@
   }); 
 
   async function fetchImage() {
-    imageSrc = "";
+    imageSrc = undefined;
 
     const img = new Image();
 
