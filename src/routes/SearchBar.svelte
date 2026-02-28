@@ -3,8 +3,7 @@
     searchQuery = $bindable(),
     filterValue = $bindable(),
     sortValue = $bindable(),
-    searchCall,
-  }: SearchBarProps = $props(); 
+  } = $props(); 
 
   import MdiSearch from "~icons/mdi/search";
   import { Input } from "$lib/components/ui/input/index";
@@ -15,16 +14,10 @@
   const SORT_CHOICES = ["id", "name"];
   const FILTER_CHOICES = ["id", "name"];
 
-  const sortTriggerContent = $derived(
-          sortValue
-            ? (sortValue == "id" ? "Sort by ID no." : "Sort by name")
-            : "Sort by..."
-        );
-  const filterTriggerContent = $derived(
-          filterValue
-            ? (filterValue == "id" ? "ID no." : "name")
-            : "..."
-        );
+  const LONG_HAND_MATCHER = (x: string) => x == "id" ? "ID no." : "name";
+
+  const sortTriggerContent = $derived("Sort by " + (sortValue ? LONG_HAND_MATCHER(sortValue) : "..."));
+  const filterTriggerContent = $derived(filterValue ? LONG_HAND_MATCHER(filterValue) : "...");
 </script>
 
 
@@ -34,9 +27,8 @@
     <Input id="searchQuery"
             type="text"
             bind:value={searchQuery}
-            onkeydown={(e) => (e.key === "Enter" && searchCall()) }
-            placeholder={`Search by name or ID no...`}
-            class="bg-card/85 text-sm focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+            placeholder={`Search by ${filterTriggerContent}...`}
+            class="bg-card text-sm border focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
         />
     <MdiSearch class="grow size-4 m-auto text-input-foreground 
                         absolute top-1/2 -translate-1/2 right-0 pointer-events-none" />
