@@ -1,5 +1,5 @@
 <script lang="ts">
-  const { name, id, url, types, details }: SpeciesShort & {details: SpeciesDetails} = $props();
+  const { name, id, url, types, details }: SpeciesShort = $props();
 
   import * as Dialog from "./ui/dialog";
   import { Skeleton } from "./ui/skeleton";
