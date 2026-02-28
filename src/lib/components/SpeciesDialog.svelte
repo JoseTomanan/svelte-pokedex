@@ -76,17 +76,18 @@
 {/snippet}
 
 
-<Dialog.Content class="border-none overflow-clip" showCloseButton={false}>
-  <Dialog.Header class="flex flex-row items-center justify-between z-10">
-    <button class="transition"
-            onclick={() => fetchNewDetails(details.id-1)}>
-      {#if details.id != 1}
-        <MdiArrowBack />
-        #{getIdAsParam(details.id-1)}
-      {/if}
-    </button>
-    <Dialog.Title class="flex flex-col items-center *:space-x-0.5">
-      <div>
+<Dialog.Content class="border-none" showCloseButton={false}>
+  <Dialog.Header class="flex flex-row items-center justify-between z-10 [&>button]:transition">
+    <div class="flex-1">
+      <button onclick={() => fetchNewDetails(details.id-1)}>
+        {#if details.id != 1}
+          <MdiArrowBack />
+          #{getIdAsParam(details.id-1)}
+        {/if}
+      </button>
+    </div>
+    <Dialog.Title class="flex flex-col items-center *:space-x-0.5 flex-1">
+      <div class="flex flex-col justify-center gap-1 sm:flex-row">
         {nameCase(details.name)}
         <span class="font-mono opacity-70">#{idParam}</span>
       </div>
@@ -94,13 +95,14 @@
         {@render manyTypesBlock(details.types)}
       </div>
     </Dialog.Title>
-    <button class="transition"
-            onclick={() => fetchNewDetails(details.id+1)}>
-      {#if details.id != 1350}
-        #{getIdAsParam(details.id+1)}
-        <MdiArrowForward />
-      {/if}
-    </button>
+    <div class="flex-1 flex justify-end">
+      <button onclick={() => fetchNewDetails(details.id+1)}>
+        {#if details.id != 1350}
+          #{getIdAsParam(details.id+1)}
+          <MdiArrowForward />
+        {/if}
+      </button>
+    </div>
   </Dialog.Header>
   <div class="relative flex justify-center -my-4">
     <span class={`${imageBackdropColor} absolute size-48 rounded-full opacity-40 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10`}
