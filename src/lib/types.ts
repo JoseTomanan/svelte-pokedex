@@ -23,12 +23,10 @@ export interface NameIdPair {
 
 
 /* ================ UI-specific ================ */
-export interface SpeciesShort {
-  id: number;
-  name: string;
+export interface SpeciesShort extends NameIdPair {
   url: string;
-  types: string[];
-  details: SpeciesDetails;
+  types?: string[];
+  details?: SpeciesDetails;
 }
 
 export interface SpeciesDetails extends SpeciesShort {
