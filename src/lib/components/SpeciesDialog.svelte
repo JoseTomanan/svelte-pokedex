@@ -152,7 +152,7 @@
       {/each}
     </stats>
     <weaknesses class="flex space-x-1 items-baseline p-2 rounded bg-card border border-border">
-      <span class="text-xs mr-1.5 font-semibold">WEAKNESSES</span>
+      <span class="text-sm mr-2 font-semibold shrink-0">Weak against:</span>
       <div class="flex flex-wrap gap-1 leading-none items-start">
         {@render manyTypesBlock(typeWeaknesses)}
       </div>
