@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { BASE_FETCH_LINK } from "@/constants";
+import { BASE_FETCH_LINK, MAX_COUNT } from "@/constants";
 import type { NameIdPair } from "@/types";
 
 
@@ -39,7 +39,7 @@ export const titleCase = (str: string) => (str.replace(/-/g, " ")
 
 /* ================ API Functions ================*/
 export async function fetchNameIdPairs() {
-  const response = await fetch(BASE_FETCH_LINK+"/?offset=0&limit=2000");
+  const response = await fetch(`${BASE_FETCH_LINK}/?offset=0&limit=${MAX_COUNT}`);
   const data = await response.json();
 
   const returnableList: NameIdPair[] = [];

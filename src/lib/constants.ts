@@ -3,6 +3,8 @@ import { PokemonType } from "./enums";
 
 export const BASE_FETCH_LINK = "https://pokeapi.co/api/v2/pokemon";
 
+export const MAX_COUNT = 1025;
+
 
 export const TYPE_STRENGTHS = {
   [PokemonType.Normal]: [],
