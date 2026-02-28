@@ -1,6 +1,13 @@
 <script lang="ts">
   const { name, id, url, types, details }: SpeciesShort = $props();
 
+  // svelte-ignore state_referenced_locally
+  if (!types)
+    throw new Error("Expected 'types' to be defined in SpeciesCard props");
+  // svelte-ignore state_referenced_locally
+  if (!details)
+    throw new Error("Expected 'details' to be defined in SpeciesCard props");
+
   import * as Dialog from "./ui/dialog";
   import { Skeleton } from "./ui/skeleton";
 	import { TYPE_BG_COLORS, TYPE_RING_COLORS } from "@/constants";
