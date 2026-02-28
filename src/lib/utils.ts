@@ -13,6 +13,16 @@ export type WithoutChildrenOrChild<T> = WithoutChildren<WithoutChild<T>>;
 export type WithElementRef<T, U extends HTMLElement = HTMLElement> = T & { ref?: U | null };
 
 
+/* ======== Utility Functions ========*/
 export const getIdAsParam = (id: number) => id.toString().padStart(3, '0');
 
 export const nameCase = (name: string) => name.charAt(0).toUpperCase() + name.slice(1);
+
+export function formatStatName(str: string): string {
+	if (str.toLowerCase() === "hp")
+    return "HP";
+	return str.replace(/-/g, " ")
+		.split(" ")
+		.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(" ");
+}
