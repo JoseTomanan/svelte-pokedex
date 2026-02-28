@@ -16,6 +16,11 @@ export interface AbilityData {
   ability: Resource;
 }
 
+export interface NameIdPair {
+  name: string;
+  id: number;
+}
+
 
 /* ================ UI-specific ================ */
 export interface SpeciesShort {
