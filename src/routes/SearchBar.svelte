@@ -17,12 +17,12 @@
 
   const sortTriggerContent = $derived(
           sortValue
-            ? (sortValue == "id" ? "Sort by ID No." : "Sort by name")
+            ? (sortValue == "id" ? "Sort by ID no." : "Sort by name")
             : "Sort by..."
         );
   const filterTriggerContent = $derived(
           filterValue
-            ? (filterValue == "id" ? "ID No." : "name")
+            ? (filterValue == "id" ? "ID no." : "name")
             : "..."
         );
 </script>
@@ -36,7 +36,7 @@
             bind:value={searchQuery}
             onkeydown={(e) => (e.key === "Enter" && searchCall()) }
             placeholder={`Search by name or ID no...`}
-            class="bg-card/85 focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+            class="bg-card/85 text-sm focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
         />
     <MdiSearch class="grow size-4 m-auto text-input-foreground 
                         absolute top-1/2 -translate-1/2 right-0 pointer-events-none" />
@@ -51,7 +51,7 @@
       <Select.Content>
         {#each SORT_CHOICES as value}
           <Select.Item {value}>
-            {value == "id" ? "ID No." : "Name"}
+            {value == "id" ? "ID no." : "Name"}
           </Select.Item>
         {/each}
       </Select.Content>
@@ -65,7 +65,7 @@
       <Select.Content>
         {#each FILTER_CHOICES as value}
           <Select.Item {value}>
-            {value == "id" ? "ID No." : "Name"}
+            {value == "id" ? "ID no." : "Name"}
           </Select.Item>
         {/each}
       </Select.Content>
