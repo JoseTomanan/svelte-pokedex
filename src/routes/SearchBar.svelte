@@ -1,17 +1,19 @@
 <script lang="ts">
+  let {
+    searchQuery = $bindable(),
+    filterValue = $bindable(),
+    sortValue = $bindable(),
+    searchCall,
+  }: SearchBarProps = $props(); 
+
   import MdiSearch from "~icons/mdi/search";
   import { Input } from "$lib/components/ui/input/index";
-	import { setContext } from "svelte";
+
 	import * as Select from "@/components/ui/select";
+	import type { SearchBarProps } from "@/context";
   
   const SORT_CHOICES = ["id", "name"];
   const FILTER_CHOICES = ["id", "name"];
-
-  let searchFilter = "name" // TODO: make this getContext()
-  let searchQuery: string = $state("");
-
-  let sortValue: string | undefined = $state();
-  let filterValue: string | undefined = $state();
 
   const sortTriggerContent = $derived(
           sortValue
@@ -20,18 +22,9 @@
         );
   const filterTriggerContent = $derived(
           filterValue
-            ? (filterValue == "id" ? "Filter by ID No." : "Filter by name")
-            : "Filter by..."
+            ? (filterValue == "id" ? "ID No." : "name")
+            : "..."
         );
-
-  // svelte-ignore state_referenced_locally
-  setContext("searchQueryContext", searchQuery);
-  // svelte-ignore state_referenced_locally
-  setContext("sortValueContext", sortValue);
-  // svelte-ignore state_referenced_locally
-  setContext("effectValueContext", filterValue);
-
-
 </script>
 
 
@@ -40,10 +33,11 @@
   <div class="relative flex flex-row items-center justify-center w-full">
     <Input id="searchQuery"
             type="text"
-            value={searchQuery}
-            class="focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
-            // TODO: add filter name to placeholder
-            placeholder={`Search by ${searchFilter}...`} />
+            bind:value={searchQuery}
+            onkeydown={(e) => (e.key === "Enter" && searchCall()) }
+            placeholder={`Search by name or ID no...`}
+            class="bg-card/85 focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+        />
     <MdiSearch class="grow size-4 m-auto text-input-foreground 
                         absolute top-1/2 -translate-1/2 right-0 pointer-events-none" />
   </div>
@@ -64,9 +58,9 @@
     </Select.Root>
     <Select.Root type="single"
                   name="filter"
-                  bind:value={filterValue}>
+                  bind:value={filterValue} >
       <Select.Trigger class="w-1/2">
-        {filterTriggerContent}
+        Filter by {filterTriggerContent}
       </Select.Trigger>
       <Select.Content>
         {#each FILTER_CHOICES as value}
