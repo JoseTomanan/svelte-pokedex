@@ -1,9 +1,7 @@
 <script lang="ts">
-  const inputDetails: SpeciesDetails = $props();
+  const initialDetails: SpeciesDetails = $props();
   
-  let details: SpeciesDetails = $derived(inputDetails);
-
-  // TODO: when it closes, load what was already stored in backend. if not stored, only then you fetch from new link.
+  let details: SpeciesDetails = $derived(initialDetails);
 
   import MdiArrowBack from "~icons/mdi/arrow-back";
   import MdiArrowForward from "~icons/mdi/arrow-forward";
@@ -34,8 +32,6 @@
 
   onMount(async () => {
     console.log("Child "+details.id+" has been opened");
-    // svelte-ignore state_referenced_locally
-    console.log(inputDetails.id+" vs "+details.id);
     fetchImage();
   }); 
 
@@ -53,7 +49,7 @@
   }
 
   async function fetchNewDetails(id: number) {
-    console.log("FETCHING FROM "+id);
+    // console.log("FETCHING FROM "+id);
 
     try {
       const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
