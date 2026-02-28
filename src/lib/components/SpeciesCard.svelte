@@ -80,6 +80,9 @@
     </div>
   </Dialog.Trigger>
 
+  <!-- 
+    TODO: find a better fix for the bug when clicking next changes dialog details.
+  -->
   {#if isDialogOpen}
     <SpeciesDialog {...details} />
   {/if}
