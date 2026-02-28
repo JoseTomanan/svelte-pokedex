@@ -1,6 +1,9 @@
 <script lang="ts">
-  const details: SpeciesDetails = $props();
+  const inputDetails: SpeciesDetails = $props();
   
+  // svelte-ignore state_referenced_locally
+  let details: SpeciesDetails = $state(inputDetails);
+
   import MdiArrowBack from "~icons/mdi/arrow-back";
   import MdiArrowForward from "~icons/mdi/arrow-forward";
 
@@ -11,9 +14,7 @@
 	import { TYPE_BG_COLORS, TYPE_WEAKNESSES } from "@/constants";
 
   const idParam: string = $derived(getIdAsParam(details.id));
-
   const imageBackdropColor = $derived( TYPE_BG_COLORS[details.types[0] as keyof typeof TYPE_BG_COLORS] )
-
   const statsHalves = $derived( [details.stats.slice(0, 3), details.stats.slice(3)] );
 
   const typeWeaknesses = $derived(
@@ -30,6 +31,12 @@
   let imageSrc = $state();
 
   onMount(async () => {
+    fetchImage();
+  }); 
+
+  async function fetchImage() {
+    imageSrc = "";
+
     const img = new Image();
 
     img.src = thumbnailImageLink;
@@ -39,10 +46,22 @@
     }
 
     img.onerror = () => isImageLoading = false;
-  }); 
+  }
 
-  async function fetchNewDetails() {
-    // TODO: fetch when Previous or Next is clicked
+  async function fetchNewDetails(id: number) {
+    console.log(id);
+
+    try {
+      const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+      const result = await response.json();
+      
+      const types = result.types.map((t: any) => t.type.name.toUpperCase());
+      details = {...result, types} as SpeciesDetails;
+  
+      fetchImage();
+    } catch {
+      console.log("Error fetching new details.");
+    }
   }
 </script>
 
@@ -59,10 +78,12 @@
 
 <Dialog.Content class="border-none overflow-clip" showCloseButton={false}>
   <Dialog.Header class="flex flex-row items-center justify-between z-10">
-    <button class={"transition " + (details.id == 1350 ? "opacity-0 -z-100" : "")}
-            onclick={() => {}}>
-      <MdiArrowBack />
-      #{getIdAsParam(details.id-1)}
+    <button class="transition"
+            onclick={() => fetchNewDetails(details.id-1)}>
+      {#if details.id != 1}
+        <MdiArrowBack />
+        #{getIdAsParam(details.id-1)}
+      {/if}
     </button>
     <Dialog.Title class="flex flex-col items-center *:space-x-0.5">
       <div>
@@ -73,10 +94,12 @@
         {@render manyTypesBlock(details.types)}
       </div>
     </Dialog.Title>
-    <button class={"transition " + (details.id == 1350 ? "opacity-0 -z-100" : "")}
-            onclick={() => {}}>
-      #{getIdAsParam(details.id+1)}
-      <MdiArrowForward />
+    <button class="transition"
+            onclick={() => fetchNewDetails(details.id+1)}>
+      {#if details.id != 1350}
+        #{getIdAsParam(details.id+1)}
+        <MdiArrowForward />
+      {/if}
     </button>
   </Dialog.Header>
   <div class="relative flex justify-center -my-4">
