@@ -25,7 +25,7 @@
   let nameIdPairsQueried: SpeciesShort[] = $state([]);
   let speciesListDerived: SpeciesShort[] = $derived(nameIdPairsQueried.slice(0, indexCurrentlyShown));
 
-  let isHasMore: boolean = $derived(speciesListDerived.length <= indexCurrentlyShown);
+  let isHasMore: boolean = $derived(speciesListDerived.length < indexCurrentlyShown);
 
   let _debounceTimer: ReturnType<typeof setTimeout>;
   let currentSearchCounter: number = 0;
@@ -94,7 +94,7 @@
       }
 
       if (activeSearchCounter !== currentSearchCounter)
-          return;
+        return;
 
       nameIdPairsQueried = [
               ...nameIdPairsQueried.slice(0, startIndex),
@@ -138,8 +138,11 @@
 </script>
 
 
-<div class="p-4 space-y-4">
+<div class="p-4 space-y-3">
   <SearchBar bind:searchQuery bind:filterValue bind:sortValue />
+  <h6 class="text-right sm:text-center w-full opacity-60">
+    Showing {nameIdPairsQueried.length} items
+  </h6>
   <div class="card-grid">
     {#if speciesListDerived.length != 0}
       {#each speciesListDerived as speciesItem}
@@ -162,8 +165,8 @@
     {#if isHasMore}
       <div bind:this={sentinel}></div>
     {:else}
-      <div class="w-full flex justify-center items-center">
-        <h4>End of list.</h4>
+      <div class="card flex justify-center items-center">
+        <h4>-END OF LIST-</h4>
       </div>
     {/if}
   </div>
