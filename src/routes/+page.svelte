@@ -25,7 +25,7 @@
   let nameIdPairsQueried: SpeciesShort[] = $state([]);
   let speciesListDerived: SpeciesShort[] = $derived(nameIdPairsQueried.slice(0, indexCurrentlyShown));
 
-  let isHasMore: boolean = $derived(speciesListDerived.length < indexCurrentlyShown);
+  let isHasMore: boolean = $derived(nameIdPairsQueried.length > indexCurrentlyShown);
 
   let _debounceTimer: ReturnType<typeof setTimeout>;
   let currentSearchCounter: number = 0;
@@ -141,33 +141,27 @@
 <div class="p-4 space-y-3">
   <SearchBar bind:searchQuery bind:filterValue bind:sortValue />
   <h6 class="text-right sm:text-center w-full opacity-60">
-    Showing {nameIdPairsQueried.length} items
+    {isLoading
+      ? "Loading..."
+      : `Showing ${nameIdPairsQueried.length} items`}
   </h6>
   <div class="card-grid">
-    {#if speciesListDerived.length != 0}
-      {#each speciesListDerived as speciesItem}
-        <SpeciesCard {...speciesItem} />
-      {/each}
-    {:else}
-      {#each { length: 18 } as _}
-        <Skeleton class="bg-muted-foreground/25 min-h-32"/>
-      {/each}
-    {/if}
+    {#each speciesListDerived as speciesItem}
+      <SpeciesCard {...speciesItem} />
+    {/each}
 
     {#if isLoading || isHasMore}
-      {#each { length: 6 } as _}
+      {#each { length: 4 } as _}
         <Skeleton class="bg-muted-foreground/25 min-h-32"/>
       {/each}
     {/if}
-
-    <!-- FIXME: this never renders -->
-     <!-- TODO: fix state of isHasMore -->
-    {#if isHasMore}
-      <div bind:this={sentinel}></div>
-    {:else}
-      <div class="card flex justify-center items-center">
-        <h4>-END OF LIST-</h4>
-      </div>
-    {/if}
   </div>
+
+  {#if isHasMore}
+    <div bind:this={sentinel}></div>
+  {:else}
+    <h4 class="opacity-60 flex justify-center items-center">
+      END OF LIST
+    </h4>
+  {/if}
 </div>
