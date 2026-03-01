@@ -1,29 +1,42 @@
 <script lang="ts">
+  const { data } = $props();
+  // svelte-ignore state_referenced_locally
+  const nameIdPairs = data.nameIdPairs;
+
   import { Skeleton } from "@/components/ui/skeleton";
 
   import { onMount, tick } from "svelte";
   import type { NameIdPair, SpeciesDetails, SpeciesShort } from "@/types"
   
   import SearchBar from "./SearchBar.svelte";
-  import SpeciesCard from "@/components/SpeciesCard.svelte";
-	import { fetchNameIdPairs } from "@/utils";
+  import SpeciesCard from "./SpeciesCard.svelte";
 
-  let isLoading: boolean = $state(false);
+  let isLoading: boolean = $state(true);
   let sentinel = $state<HTMLDivElement>();
-
-  let speciesList: SpeciesShort[] = $state([]);
-  let nameIdPairs: NameIdPair[] = $state([]);
-
-  let indexCurrentlyShown: number = $state(0);
   let observer: IntersectionObserver;
-
   let searchQuery: string = $state("");
   let filterValue: string = $state("name");
   let sortValue: string = $state("id");
 
-  let isHasMore: boolean = $derived(speciesList.length <= indexCurrentlyShown);
 
-  let nameIdPairsQueried: NameIdPair[] = $derived(nameIdPairs
+  // ================ Caching, fetching, etc. ================
+  let indexCurrentlyShown: number = $state(0);
+
+  let nameIdPairsQueried: SpeciesShort[] = $state([]);
+  let speciesListDerived: SpeciesShort[] = $derived(nameIdPairsQueried.slice(0, indexCurrentlyShown));
+
+  let isHasMore: boolean = $derived(speciesListDerived.length <= indexCurrentlyShown);
+
+  let _debounceTimer: ReturnType<typeof setTimeout>;
+  let currentSearchCounter: number = 0;
+  let activeSearchCounter: number = 0;
+
+  $effect(() => {
+    sortValue;
+    filterValue;
+    searchQuery;
+
+    nameIdPairsQueried = nameIdPairs
         .filter(pair => {
           const query = searchQuery?.toLowerCase() ?? "";
           if (!query)
@@ -36,22 +49,82 @@
           if (sortValue === "name")
             return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
           return a.id - b.id;
-        })
-      );
+        }) as SpeciesShort[];
+
+    indexCurrentlyShown = 0;
+    isLoading = false;
+
+    clearTimeout(_debounceTimer);
+    const _searchCounter = ++currentSearchCounter;
+    activeSearchCounter = _searchCounter;
+
+    _debounceTimer = setTimeout(() => {
+      if (activeSearchCounter !== currentSearchCounter)
+        return;
+      console.log("::: $effect hydration operation started");
+      isLoading = true;
+      hydrateItems(0, 10)
+        .finally(() => {
+          if (activeSearchCounter === currentSearchCounter)
+            isLoading = false;
+        });
+      console.log("::: $effect hydration operation completed");
+    }, 300);
+  });
+
+  async function hydrateItems(startIndex: number, endIndex: number) {
+    const _arraySnapshot = nameIdPairsQueried.slice();
+    const nameIdPairsSlice = _arraySnapshot.slice(startIndex, endIndex);
+
+    console.log(startIndex, endIndex);
+    console.log(`--> length of slice = ${nameIdPairsQueried.slice(startIndex, endIndex).length}`);
+
+    try {
+      const newItems: SpeciesShort[] = [];
+      for (const item of nameIdPairsSlice) {
+        if (activeSearchCounter !== currentSearchCounter)
+          return;
+
+        const subResponse = await fetch(item.url);
+        const subResult = await subResponse.json();
+        const types: string[] = subResult.types.map((t: any) => t.type.name.toUpperCase());
+        const details: SpeciesDetails = { ...subResult, types } as SpeciesDetails;
+        
+        newItems.push({...item, types, details});
+      }
+
+      if (activeSearchCounter !== currentSearchCounter)
+          return;
+
+      nameIdPairsQueried = [
+              ...nameIdPairsQueried.slice(0, startIndex),
+              ...newItems,
+              ...nameIdPairsQueried.slice(endIndex)
+            ];
+
+      indexCurrentlyShown += endIndex - startIndex;
+      
+      await tick();
+      if (sentinel && observer) {
+        observer.unobserve(sentinel);
+        observer.observe(sentinel);
+      }
+    } catch(e) {
+      alert("FAILED TO FINISH HYDRATION OPERATION:\n"+e+"\n\nSTART INDEX: "+startIndex+"\nEND INDEX: "+endIndex);
+    }
+  }
 
 
+  // ================ On mount ================
   onMount(() => {
-    (async () => {
-      const fetchResult = await fetchNameIdPairs();
-      nameIdPairs = fetchResult;
-    })();
-
     observer = new IntersectionObserver(
             ([entry]) => {
               if (entry.isIntersecting && !isLoading && isHasMore) {
+                console.log("::: observer hydration operation started");
                 isLoading = true;
-                hydrateThenPushItems(nameIdPairsQueried.slice(indexCurrentlyShown, indexCurrentlyShown + 10) as SpeciesShort[])
+                hydrateItems(indexCurrentlyShown, indexCurrentlyShown + 10)
                   .finally(() => { isLoading = false });
+                console.log(`::: observer hydration operation completed for ${indexCurrentlyShown}:${indexCurrentlyShown+10}`);
               }
             },
             { rootMargin: '200px' }
@@ -62,72 +135,28 @@
 
     return () => observer.disconnect();
   });
-
-
-  let _debounceTimer: ReturnType<typeof setTimeout>;
-  let _currentSearchCounter: number = 0;
-  $effect(() => {
-    sortValue;
-    filterValue;
-    searchQuery;
-    speciesList = [];
-    indexCurrentlyShown = 0;
-    isLoading = false;
-
-    clearTimeout(_debounceTimer);
-
-    const _searchCounter = ++_currentSearchCounter;
-
-    _debounceTimer = setTimeout(() => {
-      if (_searchCounter !== _currentSearchCounter)
-        return;
-      isLoading = true;
-      hydrateThenPushItems(nameIdPairsQueried.slice(0, 10) as SpeciesShort[])
-        .finally(() => {
-          if (_searchCounter === _currentSearchCounter)
-            isLoading = false;
-        });
-    }, 300);
-  });
-
-
-  async function hydrateThenPushItems(items: SpeciesShort[]) {
-    indexCurrentlyShown += items.length;
-    try {
-      for (const item of items) {
-        const subResponse = await fetch(item.url);
-        const subResult = await subResponse.json();
-  
-        const types: string[] = subResult.types.map((t: any) => t.type.name.toUpperCase());
-        item.types = types;
-        item.details = {...subResult, types} as SpeciesDetails;
-      }
-
-      speciesList.push(...items);
-      
-      await tick();
-      if (sentinel && observer) {
-        observer.unobserve(sentinel);
-        observer.observe(sentinel);
-      }
-    } catch(e) {
-      alert("Failed to hydrate:"+e);
-    }
-  }
 </script>
 
 
 <div class="p-4 space-y-4">
   <SearchBar bind:searchQuery bind:filterValue bind:sortValue />
   <div class="card-grid">
-    {#each speciesList as speciesItem}
-      <SpeciesCard {...speciesItem} />
-    {/each}
-    {#if isLoading}
-      {#each { length: 6 } as _}
-        <Skeleton class="bg-muted-foreground/25"/>
+    {#if speciesListDerived.length != 0}
+      {#each speciesListDerived as speciesItem}
+        <SpeciesCard {...speciesItem} />
+      {/each}
+    {:else}
+      {#each { length: 20 } as _}
+        <Skeleton class="bg-muted-foreground/25 min-h-32"/>
       {/each}
     {/if}
+
+    {#if isLoading || isHasMore}
+      {#each { length: 12 } as _}
+        <Skeleton class="bg-muted-foreground/25 min-h-32"/>
+      {/each}
+    {/if}
+
     {#if isHasMore}
       <div bind:this={sentinel}></div>
     {:else}
