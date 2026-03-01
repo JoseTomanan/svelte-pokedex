@@ -68,8 +68,8 @@
                     throw new Error(`ICON FOR TYPE '${type}' NOT FOUND`); 
                   return returnableIcon; 
                 })()}
-          <span class={`${thisBgColor} p-1 text-foreground rounded-full w-fit opacity-80
-                          group-hover:opacity-100`}>
+          <span class={`${thisBgColor} p-1 text-foreground rounded-full w-fit opacity-80 brightness-105
+                          group-hover:opacity-100 group-hover:brightness-100`}>
             <img src={typeIconUrl as string}
                   class="size-4"
                   alt={type} />
