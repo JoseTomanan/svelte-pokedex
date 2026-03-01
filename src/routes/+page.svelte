@@ -17,6 +17,7 @@
   let searchQuery: string = $state("");
   let filterValue: string = $state("name");
   let sortValue: string = $state("id");
+  let isSortAscending: boolean = $state(true)
 
 
   // ================ Caching, fetching, etc. ================
@@ -46,9 +47,12 @@
           return pair.id.toString().includes(query);
         })
         .sort((a, b) => {
+          let res;
           if (sortValue === "name")
-            return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
-          return a.id - b.id;
+            res = a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+          else
+            res = a.id - b.id;
+          return isSortAscending ? res : -res;
         }) as SpeciesShort[];
 
     indexCurrentlyShown = 0;
@@ -120,7 +124,6 @@
     observer = new IntersectionObserver(
             ([entry]) => {
               if (entry.isIntersecting && !isLoading && isHasMore) {
-                console.log("::: observer hydration operation started");
                 isLoading = true;
                 hydrateItems(indexCurrentlyShown, indexCurrentlyShown + 10)
                   .finally(() => { isLoading = false });
@@ -139,8 +142,11 @@
 
 
 <div class="p-4 space-y-3">
-  <SearchBar bind:searchQuery bind:filterValue bind:sortValue />
-  <h6 class="text-right sm:text-center w-full opacity-60">
+  <SearchBar bind:searchQuery
+          bind:filterValue
+          bind:sortValue
+          bind:isSortAscending />
+  <h6 class="text-right w-full opacity-60">
     {isLoading
       ? "Loading..."
       : `Showing ${nameIdPairsQueried.length} items`}
