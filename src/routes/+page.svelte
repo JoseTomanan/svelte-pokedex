@@ -147,7 +147,9 @@
   </h6>
   <div class="card-grid">
     {#each speciesListDerived as speciesItem}
-      <SpeciesCard {...speciesItem} />
+      {#if speciesItem.types}
+        <SpeciesCard {...speciesItem} />
+      {/if}
     {/each}
 
     {#if isLoading || isHasMore}
