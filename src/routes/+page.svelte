@@ -1,34 +1,61 @@
 <script lang="ts">
   import { Skeleton } from "@/components/ui/skeleton";
 
-  import { getContext, onMount, tick } from "svelte";
-  import type { Resource, SpeciesDetails, SpeciesShort } from "@/types"
+  import { onMount, tick } from "svelte";
+  import type { NameIdPair, SpeciesDetails, SpeciesShort } from "@/types"
   
   import SearchBar from "./SearchBar.svelte";
   import SpeciesCard from "@/components/SpeciesCard.svelte";
-	import SpeciesDialog from "@/components/SpeciesDialog.svelte";
+	import { fetchNameIdPairs } from "@/utils";
 
   let isLoading: boolean = $state(false);
-  let isHasMore: boolean = $state(true);
   let sentinel = $state<HTMLDivElement>();
 
-  let searchQuery: string = getContext("searchQueryContext");
-
   let speciesList: SpeciesShort[] = $state([]);
-  let previousUrl: string = "";
-  let nextUrl: string = "BABABA";
+  let nameIdPairs: NameIdPair[] = $state([]);
 
+  let indexCurrentlyShown: number = $state(0);
   let observer: IntersectionObserver;
 
+  let searchQuery: string = $state("");
+  let filterValue: string = $state("name");
+  let sortValue: string = $state("id");
+
+  let isHasMore: boolean = $derived(speciesList.length <= indexCurrentlyShown);
+
+  let nameIdPairsQueried: NameIdPair[] = $derived(nameIdPairs
+        .filter(pair => {
+          const query = searchQuery?.toLowerCase() ?? "";
+          if (!query)
+            return true;
+          if (filterValue === "name")
+            return pair.name.toLowerCase().startsWith(query);
+          return pair.id.toString().includes(query);
+        })
+        .sort((a, b) => {
+          if (sortValue === "name")
+            return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+          return a.id - b.id;
+        })
+      );
+
+
   onMount(() => {
-    fetchItemsFromLink("https://pokeapi.co/api/v2/pokemon/?offset=0&limit=10");
+    (async () => {
+      const fetchResult = await fetchNameIdPairs();
+      nameIdPairs = fetchResult;
+    })();
 
     observer = new IntersectionObserver(
             ([entry]) => {
-              if (entry.isIntersecting)
-                fetchItemsFromLink(nextUrl);
-            }, { rootMargin: '200px' }
-            );
+              if (entry.isIntersecting && !isLoading && isHasMore) {
+                isLoading = true;
+                hydrateThenPushItems(nameIdPairsQueried.slice(indexCurrentlyShown, indexCurrentlyShown + 10) as SpeciesShort[])
+                  .finally(() => { isLoading = false });
+              }
+            },
+            { rootMargin: '200px' }
+          );
 
     if (sentinel)
       observer.observe(sentinel);
@@ -36,52 +63,65 @@
     return () => observer.disconnect();
   });
 
-  async function fetchItemsFromLink(url: string) {
-    if (isLoading || !isHasMore)
-      return;
-    
-    isLoading = true;
-    try {
-      const response = await fetch(url);
-      const result = await response.json();
 
-      for (const item of result.results as Resource[]) {
+  let _debounceTimer: ReturnType<typeof setTimeout>;
+  let _currentSearchCounter: number = 0;
+  $effect(() => {
+    sortValue;
+    filterValue;
+    searchQuery;
+    speciesList = [];
+    indexCurrentlyShown = 0;
+    isLoading = false;
+
+    clearTimeout(_debounceTimer);
+
+    const _searchCounter = ++_currentSearchCounter;
+
+    _debounceTimer = setTimeout(() => {
+      if (_searchCounter !== _currentSearchCounter)
+        return;
+      isLoading = true;
+      hydrateThenPushItems(nameIdPairsQueried.slice(0, 10) as SpeciesShort[])
+        .finally(() => {
+          if (_searchCounter === _currentSearchCounter)
+            isLoading = false;
+        });
+    }, 300);
+  });
+
+
+  async function hydrateThenPushItems(items: SpeciesShort[]) {
+    indexCurrentlyShown += items.length;
+    try {
+      for (const item of items) {
         const subResponse = await fetch(item.url);
         const subResult = await subResponse.json();
-
-        const id: number = subResult.id;
+  
         const types: string[] = subResult.types.map((t: any) => t.type.name.toUpperCase());
-        
-        const details: SpeciesDetails = {...subResult, types} as SpeciesDetails;
-
-        speciesList.push({
-          ...item, id, types, details
-        } as SpeciesShort);
+        item.types = types;
+        item.details = {...subResult, types} as SpeciesDetails;
       }
-      
-      previousUrl = result.previous;
-      nextUrl = result.next;
 
+      speciesList.push(...items);
+      
       await tick();
       if (sentinel && observer) {
         observer.unobserve(sentinel);
         observer.observe(sentinel);
       }
-    } catch (e) {
-      alert("There was an error in fetching from PokeAPI:"+e)
-    } finally {
-      isLoading = false;
+    } catch(e) {
+      alert("Failed to hydrate:"+e);
     }
-  };
+  }
 </script>
 
 
 <div class="p-4 space-y-4">
-  <SearchBar/>
+  <SearchBar bind:searchQuery bind:filterValue bind:sortValue />
   <div class="card-grid">
     {#each speciesList as speciesItem}
-      <SpeciesCard {...speciesItem} 
-                details={speciesItem.details} />
+      <SpeciesCard {...speciesItem} />
     {/each}
     {#if isLoading}
       {#each { length: 6 } as _}
