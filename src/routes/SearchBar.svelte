@@ -63,8 +63,14 @@
         <Select.Trigger class="w-1/3 rounded-l-xs">
           {#if isSortAscending}
             <Ascending/>
+            <span class="truncate">
+              Ascending
+            </span>
           {:else}
             <Descending/>
+            <span class="truncate">
+              Descending
+            </span>
           {/if}
         </Select.Trigger>
         <Select.Content>
