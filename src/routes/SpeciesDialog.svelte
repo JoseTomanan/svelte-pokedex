@@ -96,7 +96,8 @@
 {/snippet}
 
 
-<Dialog.Content class="border-none" showCloseButton={false}>
+<Dialog.Content class="border-none flex flex-col justify-start h-158
+                    sm:h-134">
   <Dialog.Header class="flex flex-row items-center justify-between z-10 [&>button]:transition">
     <div class="min-w-1/5">
       <button onclick={() => fetchNewDetails(details.id-1)}>
@@ -106,12 +107,12 @@
         {/if}
       </button>
     </div>
-    <Dialog.Title class="flex flex-col items-center *:space-x-0.5 flex-1">
-      <div class="flex flex-wrap justify-center gap-1">
+    <Dialog.Title class="flex flex-col justify-center items-center *:space-x-0.5 flex-1 h-12">
+      <div class="flex flex-wrap justify-center items-center gap-x-0.5 gap-y-0.5">
         {#if isNewDetailsLoading}
-          <Skeleton class="grayscale-100 w-16 h-4 rounded-none"/>
+          <Skeleton class="grayscale-100 w-18 h-4.5 rounded-none"/>
         {:else}
-        <span>{nameCase(details.name)}</span>
+          <span>{nameCase(details.name)}</span>
         {/if}
         <span class="font-mono opacity-70">#{idParam}</span>
       </div>
@@ -157,13 +158,13 @@
         <h6>WEIGHT</h6>
         <p>{details.weight} kg</p>
       </div>
-      <div class="card h-fit -space-y-0.5 leading-0 text-center flex-1
-                    [&>h6]:font-medium [&>p]:font-light">
-        <h6>SPECIES</h6>
-        <p>{nameCase(details.species.name)}</p>
-      </div>
       <div class="hidden sm:flex sm:flex-col
                     card h-fit -space-y-0.5 leading-0 text-center flex-1
+                    [&>h6]:font-medium [&>p]:font-light">
+        <h6>SPECIES</h6>
+        <p class="truncate">{nameCase(details.species.name)}</p>
+      </div>
+      <div class="card h-fit -space-y-0.5 leading-0 text-center flex-1
                     [&>h6]:font-medium [&>p]:font-light">
         <h6>ORDER</h6>
         <p>{details.order}</p>
@@ -184,7 +185,7 @@
     </stats>
 
     <weaknesses class="flex space-x-0.5 items-baseline p-2 rounded bg-card border border-border
-                  sm:h-10">
+                  ">
       <span class="text-sm mr-2 font-semibold shrink-0">Weak against:</span>
       <div class="flex flex-wrap gap-1 leading-none items-start px-1 bg-card/60">
         {@render manyTypesBlock(typeWeaknesses)}
