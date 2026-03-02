@@ -68,7 +68,7 @@
                     throw new Error(`ICON FOR TYPE '${type}' NOT FOUND`); 
                   return returnableIcon; 
                 })()}
-          <span class={`${thisBgColor} p-1 text-foreground rounded-full w-fit opacity-75 saturate-75
+          <span class={`${thisBgColor} p-1 text-foreground rounded-full w-fit opacity-80 saturate-80
                           group-hover:opacity-100 group-hover:saturate-100`}>
             <img src={typeIconUrl as string}
                   class="size-4"
@@ -81,8 +81,8 @@
       {:else}
         <img src={imageSrc as string}
               alt={name}
-              class="h-40 w-60 px-10 opacity-60 z-1 -mt-6 -mb-8 -ml-8
-                      group-hover:opacity-100"/>
+              class="h-40 w-60 px-10 opacity-80 saturate-80 z-1 -mt-6 -mb-8 -ml-8
+                      group-hover:opacity-100 group-hover:saturate-100"/>
       {/if}
     </div>
   </Dialog.Trigger>
