@@ -180,8 +180,8 @@
   {#if isHasMore}
     <div bind:this={sentinel}></div>
   {:else}
-    <h4 class="opacity-60 flex justify-center items-center">
-      END OF LIST
+    <h4 class="flex justify-center items-center font-bold text-muted-foreground">
+      &middot; END OF LIST &middot;
     </h4>
   {/if}
 </div>
