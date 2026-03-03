@@ -20,6 +20,7 @@
 	import { onMount } from "svelte";
 	import { MAX_COUNT, TYPE_BG_COLORS, TYPE_WEAKNESSES } from "@/constants";
 	import { Skeleton } from "@/components/ui/skeleton";
+	import Progress from "@/components/ui/progress/progress.svelte";
 
   const idParam: string = $derived(getIdAsParam(details.id));
   const imageBackdropColor = $derived( TYPE_BG_COLORS[details.types[0] as keyof typeof TYPE_BG_COLORS] )
@@ -67,7 +68,6 @@
     details.height = -1;
     details.weight = -1;
     details.order = -1;
-    details.species = {name: ".", url: ""};
 
     try {
       const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
@@ -97,7 +97,7 @@
 
 
 <Dialog.Content class="border-none flex flex-col justify-start h-158
-                    sm:h-134">
+            xs:h-148">
   <Dialog.Header class="flex flex-row items-center justify-between z-10 [&>button]:transition">
     <div class="min-w-1/5">
       <button onclick={() => fetchNewDetails(details.id-1)}>
@@ -158,26 +158,31 @@
         <h6>WEIGHT</h6>
         <p>{details.weight} kg</p>
       </div>
-      <div class="hidden sm:flex sm:flex-col
-                    card h-fit -space-y-0.5 leading-0 text-center flex-1
-                    [&>h6]:font-medium [&>p]:font-light">
-        <h6>SPECIES</h6>
-        <p class="truncate">{nameCase(details.species.name)}</p>
-      </div>
       <div class="card h-fit -space-y-0.5 leading-0 text-center flex-1
+                    [&>h6]:font-medium [&>p]:font-light">
+        <h6>ABILITY</h6>
+        <p class="truncate">{nameCase(details.abilities[0].ability.name)}</p>
+      </div>
+      <div class="hidden xs:flex xs:flex-col
+                    card h-fit -space-y-0.5 leading-0 text-center flex-1
                     [&>h6]:font-medium [&>p]:font-light">
         <h6>ORDER</h6>
         <p>{details.order}</p>
       </div>
     </div>
 
-    <stats class="card flex flex-col sm:flex-row">
+    <stats class="card flex flex-col">
       {#each statsHalves as statsHalf}
         <div class="flex-1">
           {#each statsHalf as s}
-            <span class="flex flex-row gap-2 [&>h6]:flex-1">
-              <h6 class="font-semibold">{s.stat.name == "hp" ? "HP" : titleCase(s.stat.name)}</h6>
-              <h6 class="font-light">{s.base_stat}</h6>
+            <span class="flex flex-row gap-2 items-center">
+              <span class="flex flex-row items-center justify-between gap-x-1 flex-1">
+                <h6 class="font-semibold">{s.stat.name == "hp" ? "HP" : titleCase(s.stat.name)}</h6>
+                <h6 class="font-light">{s.base_stat}</h6>
+              </span>
+              <Progress value={s.base_stat}
+                    max={255}
+                    class="saturate-0 w-1/3 xs:w-1/2" />
             </span>
           {/each}
         </div>
