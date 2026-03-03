@@ -168,11 +168,11 @@
 
     {#if !isItemsReady}
       {#each { length: 20 } as _}
-        <Skeleton class="bg-muted-foreground/25 h-35.5 rounded-lg"/>
+        <Skeleton class="bg-muted-foreground/40 h-35.5 rounded-lg"/>
       {/each}
     {:else if isLoading || isHasMore}
       {#each { length: 4 } as _}
-        <Skeleton class="bg-muted-foreground/25 h-35.5 rounded-lg"/>
+        <Skeleton class="bg-muted-foreground/40 h-35.5 rounded-lg"/>
       {/each}
     {/if}
   </div>
